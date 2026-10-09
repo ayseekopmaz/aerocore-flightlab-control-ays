@@ -76,4 +76,4 @@ Geliştirme ortamında Linux/Qt 6.4 derlemesi ve testler çalıştırıldı; Win
 - Sensör arızası ve failsafe davranışı kullanılan PX4 derlemesine bağlıdır; komut onayı tek başına etki kanıtı sayılmaz. Ölçüm kanıtı eksikse sonuç `INCONCLUSIVE` olabilir.
 - Oturum kaydı uygulamanın telemetri örnekleridir; PX4 ULog veya Gazebo video dosyası yerine geçmez. Araç karşılaştırması eşzamanlı sürü uçuşu değil, sırayla yapılan deneydir.
 
- `LICENSE` dosyası seçmelidir.
+
