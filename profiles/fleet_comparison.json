@@ -1,0 +1,56 @@
+{
+  "schema": 1,
+  "vehicles": [
+    {
+      "system": 1,
+      "name": "Drone 1 — profil 1",
+      "profile": {
+        "payload": 0.0,
+        "cgX": 0,
+        "cgY": 0,
+        "cgZ": 0,
+        "gpsNoise": 0
+      },
+      "parameters": {
+        "MPC_XY_P": 0.95,
+        "SIM_BAT_DRAIN": 0,
+        "SIM_BAT_MIN_PCT": 10
+      },
+      "batteryModel": "PX4 synthetic — enerji doğrulaması yok"
+    },
+    {
+      "system": 2,
+      "name": "Drone 2 — profil 2",
+      "profile": {
+        "payload": 0.2,
+        "cgX": 0,
+        "cgY": 0,
+        "cgZ": 0,
+        "gpsNoise": 0
+      },
+      "parameters": {
+        "MPC_XY_P": 1.05,
+        "SIM_BAT_DRAIN": 0,
+        "SIM_BAT_MIN_PCT": 10
+      },
+      "batteryModel": "PX4 synthetic — enerji doğrulaması yok"
+    },
+    {
+      "system": 3,
+      "name": "Drone 3 — profil 3",
+      "profile": {
+        "payload": 0.4,
+        "cgX": 0,
+        "cgY": 0,
+        "cgZ": 0,
+        "gpsNoise": 0
+      },
+      "parameters": {
+        "MPC_XY_P": 1.15,
+        "SIM_BAT_DRAIN": 0,
+        "SIM_BAT_MIN_PCT": 10
+      },
+      "batteryModel": "PX4 synthetic — enerji doğrulaması yok"
+    }
+  ]
+}

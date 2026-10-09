@@ -1,0 +1,1059 @@
+<?xml version='1.0' encoding='utf-8'?>
+<ui version="4.0">
+  <class>LabPanel</class>
+  <widget class="QWidget" name="LabPanel">
+    <layout class="QVBoxLayout" name="rootLayout">
+      <item>
+        <widget class="QLabel" name="introLabel">
+          <property name="text">
+            <string>TEST LABORATUVARI • Fizik ve bataryayı Araç profilleri sekmesinde ayarla → simülasyonu başlat → testi çalıştır. Karşılaştırmalar araç başına sırayla yapılır.</string>
+          </property>
+          <property name="wordWrap">
+            <bool>true</bool>
+          </property>
+        </widget>
+      </item>
+      <item>
+        <widget class="QTabWidget" name="tabs">
+          <widget class="QWidget" name="scenarioTab">
+            <attribute name="title">
+              <string>1 • Test oluşturucu</string>
+            </attribute>
+            <layout class="QVBoxLayout" name="scenarioTabLayout">
+              <item>
+                <layout class="QHBoxLayout" name="forms">
+                  <item>
+                    <layout class="QFormLayout" name="flightForm">
+                      <item row="0" column="0">
+                        <widget class="QLabel" name="nameEditLabel">
+                          <property name="text">
+                            <string>Senaryo adı</string>
+                          </property>
+                          <property name="wordWrap">
+                            <bool>true</bool>
+                          </property>
+                        </widget>
+                      </item>
+                      <item row="0" column="1">
+                        <widget class="QLineEdit" name="nameEdit" />
+                      </item>
+                      <item row="1" column="0">
+                        <widget class="QLabel" name="kindComboLabel">
+                          <property name="text">
+                            <string>Test türü</string>
+                          </property>
+                          <property name="wordWrap">
+                            <bool>true</bool>
+                          </property>
+                        </widget>
+                      </item>
+                      <item row="1" column="1">
+                        <widget class="QComboBox" name="kindCombo" />
+                      </item>
+                      <item row="2" column="0">
+                        <widget class="QLabel" name="vehicleLabelLabel">
+                          <property name="text">
+                            <string>Araç modeli</string>
+                          </property>
+                          <property name="wordWrap">
+                            <bool>true</bool>
+                          </property>
+                        </widget>
+                      </item>
+                      <item row="2" column="1">
+                        <widget class="QLabel" name="vehicleLabel">
+                          <property name="wordWrap">
+                            <bool>true</bool>
+                          </property>
+                        </widget>
+                      </item>
+                      <item row="3" column="0">
+                        <widget class="QLabel" name="versionEditLabel">
+                          <property name="text">
+                            <string>Sürüm / deney etiketi</string>
+                          </property>
+                          <property name="wordWrap">
+                            <bool>true</bool>
+                          </property>
+                        </widget>
+                      </item>
+                      <item row="3" column="1">
+                        <widget class="QLineEdit" name="versionEdit" />
+                      </item>
+                      <item row="4" column="0">
+                        <widget class="QLabel" name="altitudeSpinLabel">
+                          <property name="text">
+                            <string>İrtifa</string>
+                          </property>
+                          <property name="wordWrap">
+                            <bool>true</bool>
+                          </property>
+                        </widget>
+                      </item>
+                      <item row="4" column="1">
+                        <widget class="QDoubleSpinBox" name="altitudeSpin">
+                          <property name="minimum">
+                            <double>2.000000</double>
+                          </property>
+                          <property name="maximum">
+                            <double>30.000000</double>
+                          </property>
+                          <property name="value">
+                            <double>5.000000</double>
+                          </property>
+                          <property name="suffix">
+                            <string> m</string>
+                          </property>
+                        </widget>
+                      </item>
+                      <item row="5" column="0">
+                        <widget class="QLabel" name="durationSpinLabel">
+                          <property name="text">
+                            <string>Ölçüm süresi</string>
+                          </property>
+                          <property name="wordWrap">
+                            <bool>true</bool>
+                          </property>
+                        </widget>
+                      </item>
+                      <item row="5" column="1">
+                        <widget class="QDoubleSpinBox" name="durationSpin">
+                          <property name="minimum">
+                            <double>5.000000</double>
+                          </property>
+                          <property name="maximum">
+                            <double>1800.000000</double>
+                          </property>
+                          <property name="value">
+                            <double>30.000000</double>
+                          </property>
+                          <property name="suffix">
+                            <string> sn</string>
+                          </property>
+                        </widget>
+                      </item>
+                      <item row="6" column="0">
+                        <widget class="QLabel" name="speedSpinLabel">
+                          <property name="text">
+                            <string>Hız</string>
+                          </property>
+                          <property name="wordWrap">
+                            <bool>true</bool>
+                          </property>
+                        </widget>
+                      </item>
+                      <item row="6" column="1">
+                        <widget class="QDoubleSpinBox" name="speedSpin">
+                          <property name="minimum">
+                            <double>0.200000</double>
+                          </property>
+                          <property name="maximum">
+                            <double>10.000000</double>
+                          </property>
+                          <property name="value">
+                            <double>3.000000</double>
+                          </property>
+                          <property name="suffix">
+                            <string> m/s</string>
+                          </property>
+                        </widget>
+                      </item>
+                      <item row="7" column="0">
+                        <widget class="QLabel" name="dwellSpinLabel">
+                          <property name="text">
+                            <string>Noktada bekleme</string>
+                          </property>
+                          <property name="wordWrap">
+                            <bool>true</bool>
+                          </property>
+                        </widget>
+                      </item>
+                      <item row="7" column="1">
+                        <widget class="QDoubleSpinBox" name="dwellSpin">
+                          <property name="minimum">
+                            <double>0.000000</double>
+                          </property>
+                          <property name="maximum">
+                            <double>60.000000</double>
+                          </property>
+                          <property name="value">
+                            <double>2.000000</double>
+                          </property>
+                          <property name="suffix">
+                            <string> sn</string>
+                          </property>
+                        </widget>
+                      </item>
+                      <item row="8" column="0">
+                        <widget class="QLabel" name="timeoutSpinLabel">
+                          <property name="text">
+                            <string>Toplam zaman aşımı</string>
+                          </property>
+                          <property name="wordWrap">
+                            <bool>true</bool>
+                          </property>
+                        </widget>
+                      </item>
+                      <item row="8" column="1">
+                        <widget class="QDoubleSpinBox" name="timeoutSpin">
+                          <property name="minimum">
+                            <double>30.000000</double>
+                          </property>
+                          <property name="maximum">
+                            <double>3600.000000</double>
+                          </property>
+                          <property name="value">
+                            <double>180.000000</double>
+                          </property>
+                          <property name="suffix">
+                            <string> sn</string>
+                          </property>
+                        </widget>
+                      </item>
+                      <item row="9" column="0">
+                        <widget class="QLabel" name="errorSpinLabel">
+                          <property name="text">
+                            <string>Yatay hata sınırı</string>
+                          </property>
+                          <property name="wordWrap">
+                            <bool>true</bool>
+                          </property>
+                        </widget>
+                      </item>
+                      <item row="9" column="1">
+                        <widget class="QDoubleSpinBox" name="errorSpin">
+                          <property name="minimum">
+                            <double>0.100000</double>
+                          </property>
+                          <property name="maximum">
+                            <double>100.000000</double>
+                          </property>
+                          <property name="value">
+                            <double>2.000000</double>
+                          </property>
+                          <property name="suffix">
+                            <string> m</string>
+                          </property>
+                        </widget>
+                      </item>
+                      <item row="10" column="0">
+                        <widget class="QLabel" name="altErrorSpinLabel">
+                          <property name="text">
+                            <string>İrtifa hata sınırı</string>
+                          </property>
+                          <property name="wordWrap">
+                            <bool>true</bool>
+                          </property>
+                        </widget>
+                      </item>
+                      <item row="10" column="1">
+                        <widget class="QDoubleSpinBox" name="altErrorSpin">
+                          <property name="minimum">
+                            <double>0.100000</double>
+                          </property>
+                          <property name="maximum">
+                            <double>30.000000</double>
+                          </property>
+                          <property name="value">
+                            <double>1.000000</double>
+                          </property>
+                          <property name="suffix">
+                            <string> m</string>
+                          </property>
+                        </widget>
+                      </item>
+                      <item row="11" column="0">
+                        <widget class="QLabel" name="tiltSpinLabel">
+                          <property name="text">
+                            <string>Eğim sınırı</string>
+                          </property>
+                          <property name="wordWrap">
+                            <bool>true</bool>
+                          </property>
+                        </widget>
+                      </item>
+                      <item row="11" column="1">
+                        <widget class="QDoubleSpinBox" name="tiltSpin">
+                          <property name="minimum">
+                            <double>1.000000</double>
+                          </property>
+                          <property name="maximum">
+                            <double>85.000000</double>
+                          </property>
+                          <property name="value">
+                            <double>30.000000</double>
+                          </property>
+                          <property name="suffix">
+                            <string> °</string>
+                          </property>
+                        </widget>
+                      </item>
+                      <item row="12" column="0">
+                        <widget class="QLabel" name="coverageSpinLabel">
+                          <property name="text">
+                            <string>Asgari ölçüm kapsamı</string>
+                          </property>
+                          <property name="wordWrap">
+                            <bool>true</bool>
+                          </property>
+                        </widget>
+                      </item>
+                      <item row="12" column="1">
+                        <widget class="QDoubleSpinBox" name="coverageSpin">
+                          <property name="minimum">
+                            <double>10.000000</double>
+                          </property>
+                          <property name="maximum">
+                            <double>100.000000</double>
+                          </property>
+                          <property name="value">
+                            <double>80.000000</double>
+                          </property>
+                          <property name="suffix">
+                            <string> %</string>
+                          </property>
+                        </widget>
+                      </item>
+                    </layout>
+                  </item>
+                  <item>
+                    <layout class="QFormLayout" name="conditionsForm">
+                      <item row="0" column="0">
+                        <widget class="QLabel" name="windSpinLabel">
+                          <property name="text">
+                            <string>Başlangıç rüzgârı</string>
+                          </property>
+                          <property name="wordWrap">
+                            <bool>true</bool>
+                          </property>
+                        </widget>
+                      </item>
+                      <item row="0" column="1">
+                        <widget class="QDoubleSpinBox" name="windSpin">
+                          <property name="minimum">
+                            <double>0.000000</double>
+                          </property>
+                          <property name="maximum">
+                            <double>15.000000</double>
+                          </property>
+                          <property name="value">
+                            <double>0.000000</double>
+                          </property>
+                          <property name="suffix">
+                            <string> m/s</string>
+                          </property>
+                        </widget>
+                      </item>
+                      <item row="1" column="0">
+                        <widget class="QLabel" name="directionSpinLabel">
+                          <property name="text">
+                            <string>Rüzgârın gittiği yön (0=Kuzey)</string>
+                          </property>
+                          <property name="wordWrap">
+                            <bool>true</bool>
+                          </property>
+                        </widget>
+                      </item>
+                      <item row="1" column="1">
+                        <widget class="QDoubleSpinBox" name="directionSpin">
+                          <property name="minimum">
+                            <double>0.000000</double>
+                          </property>
+                          <property name="maximum">
+                            <double>360.000000</double>
+                          </property>
+                          <property name="value">
+                            <double>0.000000</double>
+                          </property>
+                          <property name="suffix">
+                            <string> °</string>
+                          </property>
+                        </widget>
+                      </item>
+                      <item row="2" column="0">
+                        <widget class="QLabel" name="payloadSpinLabel">
+                          <property name="text">
+                            <string>Ek yük (5 cm küre)</string>
+                          </property>
+                          <property name="wordWrap">
+                            <bool>true</bool>
+                          </property>
+                        </widget>
+                      </item>
+                      <item row="2" column="1">
+                        <widget class="QDoubleSpinBox" name="payloadSpin">
+                          <property name="minimum">
+                            <double>0.000000</double>
+                          </property>
+                          <property name="maximum">
+                            <double>2.000000</double>
+                          </property>
+                          <property name="value">
+                            <double>0.000000</double>
+                          </property>
+                          <property name="suffix">
+                            <string> kg</string>
+                          </property>
+                        </widget>
+                      </item>
+                      <item row="3" column="0">
+                        <widget class="QLabel" name="cgXSpinLabel">
+                          <property name="text">
+                            <string>Yük X / ileri</string>
+                          </property>
+                          <property name="wordWrap">
+                            <bool>true</bool>
+                          </property>
+                        </widget>
+                      </item>
+                      <item row="3" column="1">
+                        <widget class="QDoubleSpinBox" name="cgXSpin">
+                          <property name="minimum">
+                            <double>-0.500000</double>
+                          </property>
+                          <property name="maximum">
+                            <double>0.500000</double>
+                          </property>
+                          <property name="value">
+                            <double>0.000000</double>
+                          </property>
+                          <property name="suffix">
+                            <string> m</string>
+                          </property>
+                        </widget>
+                      </item>
+                      <item row="4" column="0">
+                        <widget class="QLabel" name="cgYSpinLabel">
+                          <property name="text">
+                            <string>Yük Y / sol</string>
+                          </property>
+                          <property name="wordWrap">
+                            <bool>true</bool>
+                          </property>
+                        </widget>
+                      </item>
+                      <item row="4" column="1">
+                        <widget class="QDoubleSpinBox" name="cgYSpin">
+                          <property name="minimum">
+                            <double>-0.500000</double>
+                          </property>
+                          <property name="maximum">
+                            <double>0.500000</double>
+                          </property>
+                          <property name="value">
+                            <double>0.000000</double>
+                          </property>
+                          <property name="suffix">
+                            <string> m</string>
+                          </property>
+                        </widget>
+                      </item>
+                      <item row="5" column="0">
+                        <widget class="QLabel" name="cgZSpinLabel">
+                          <property name="text">
+                            <string>Yük Z / yukarı</string>
+                          </property>
+                          <property name="wordWrap">
+                            <bool>true</bool>
+                          </property>
+                        </widget>
+                      </item>
+                      <item row="5" column="1">
+                        <widget class="QDoubleSpinBox" name="cgZSpin">
+                          <property name="minimum">
+                            <double>-0.500000</double>
+                          </property>
+                          <property name="maximum">
+                            <double>0.500000</double>
+                          </property>
+                          <property name="value">
+                            <double>0.000000</double>
+                          </property>
+                          <property name="suffix">
+                            <string> m</string>
+                          </property>
+                        </widget>
+                      </item>
+                      <item row="6" column="0">
+                        <widget class="QLabel" name="gpsNoiseSpinLabel">
+                          <property name="text">
+                            <string>GPS konum gürültüsü σ</string>
+                          </property>
+                          <property name="wordWrap">
+                            <bool>true</bool>
+                          </property>
+                        </widget>
+                      </item>
+                      <item row="6" column="1">
+                        <widget class="QDoubleSpinBox" name="gpsNoiseSpin">
+                          <property name="minimum">
+                            <double>0.000000</double>
+                          </property>
+                          <property name="maximum">
+                            <double>10.000000</double>
+                          </property>
+                          <property name="value">
+                            <double>0.000000</double>
+                          </property>
+                          <property name="suffix">
+                            <string> m</string>
+                          </property>
+                        </widget>
+                      </item>
+                      <item row="7" column="0">
+                        <widget class="QLabel" name="drainSpinLabel">
+                          <property name="text">
+                            <string>Sentetik batarya boşalma süresi</string>
+                          </property>
+                          <property name="wordWrap">
+                            <bool>true</bool>
+                          </property>
+                        </widget>
+                      </item>
+                      <item row="7" column="1">
+                        <widget class="QDoubleSpinBox" name="drainSpin">
+                          <property name="minimum">
+                            <double>0.000000</double>
+                          </property>
+                          <property name="maximum">
+                            <double>3600.000000</double>
+                          </property>
+                          <property name="value">
+                            <double>0.000000</double>
+                          </property>
+                          <property name="suffix">
+                            <string> sn</string>
+                          </property>
+                        </widget>
+                      </item>
+                      <item row="8" column="0">
+                        <widget class="QLabel" name="batteryMinSpinLabel">
+                          <property name="text">
+                            <string>Sentetik batarya alt seviyesi</string>
+                          </property>
+                          <property name="wordWrap">
+                            <bool>true</bool>
+                          </property>
+                        </widget>
+                      </item>
+                      <item row="8" column="1">
+                        <widget class="QDoubleSpinBox" name="batteryMinSpin">
+                          <property name="minimum">
+                            <double>0.000000</double>
+                          </property>
+                          <property name="maximum">
+                            <double>100.000000</double>
+                          </property>
+                          <property name="value">
+                            <double>10.000000</double>
+                          </property>
+                          <property name="suffix">
+                            <string> %</string>
+                          </property>
+                        </widget>
+                      </item>
+                      <item row="9" column="0">
+                        <widget class="QLabel" name="batteryModelEditLabel">
+                          <property name="text">
+                            <string>Batarya modelinin kaynağı</string>
+                          </property>
+                          <property name="wordWrap">
+                            <bool>true</bool>
+                          </property>
+                        </widget>
+                      </item>
+                      <item row="9" column="1">
+                        <widget class="QLineEdit" name="batteryModelEdit" />
+                      </item>
+                      <item row="10" column="0">
+                        <widget class="QLabel" name="energyCheckLabel">
+                          <property name="text">
+                            <string>Fiziksel enerji ölçümü gerekli</string>
+                          </property>
+                          <property name="wordWrap">
+                            <bool>true</bool>
+                          </property>
+                        </widget>
+                      </item>
+                      <item row="10" column="1">
+                        <widget class="QCheckBox" name="energyCheck" />
+                      </item>
+                      <item row="11" column="0">
+                        <widget class="QLabel" name="modeComboLabel">
+                          <property name="text">
+                            <string>Beklenen tepki modu</string>
+                          </property>
+                          <property name="wordWrap">
+                            <bool>true</bool>
+                          </property>
+                        </widget>
+                      </item>
+                      <item row="11" column="1">
+                        <widget class="QComboBox" name="modeCombo" />
+                      </item>
+                    </layout>
+                  </item>
+                </layout>
+              </item>
+              <item>
+                <layout class="QHBoxLayout" name="scenarioButtons">
+                  <item>
+                    <widget class="QPushButton" name="presetButton">
+                      <property name="text">
+                        <string>Türün hazır senaryosu</string>
+                      </property>
+                    </widget>
+                  </item>
+                  <item>
+                    <widget class="QPushButton" name="loadButton">
+                      <property name="text">
+                        <string>Senaryo aç</string>
+                      </property>
+                    </widget>
+                  </item>
+                  <item>
+                    <widget class="QPushButton" name="saveButton">
+                      <property name="text">
+                        <string>Senaryo kaydet</string>
+                      </property>
+                    </widget>
+                  </item>
+                </layout>
+              </item>
+            </layout>
+          </widget>
+          <widget class="QWidget" name="routeTab">
+            <attribute name="title">
+              <string>2 • Rota &amp; parametreler</string>
+            </attribute>
+            <layout class="QVBoxLayout" name="routeTabLayout">
+              <item>
+                <widget class="QLabel" name="routeNote">
+                  <property name="text">
+                    <string>Haritada çift tıklayarak nokta ekleyin veya Doğu/Kuzey metre değerlerini girin. Koordinatlar test başlangıcındaki konuma göredir.</string>
+                  </property>
+                  <property name="wordWrap">
+                    <bool>true</bool>
+                  </property>
+                </widget>
+              </item>
+              <item>
+                <widget class="QTableWidget" name="routeTable">
+                  <property name="columnCount">
+                    <number>2</number>
+                  </property>
+                  <column>
+                    <property name="text">
+                      <string>Doğu (m)</string>
+                    </property>
+                  </column>
+                  <column>
+                    <property name="text">
+                      <string>Kuzey (m)</string>
+                    </property>
+                  </column>
+                </widget>
+              </item>
+              <item>
+                <layout class="QHBoxLayout" name="routeButtons">
+                  <item>
+                    <widget class="QPushButton" name="addPointButton">
+                      <property name="text">
+                        <string>Nokta ekle</string>
+                      </property>
+                    </widget>
+                  </item>
+                  <item>
+                    <widget class="QPushButton" name="removePointButton">
+                      <property name="text">
+                        <string>Seçili noktayı sil</string>
+                      </property>
+                    </widget>
+                  </item>
+                  <item>
+                    <widget class="QPushButton" name="clearRouteButton">
+                      <property name="text">
+                        <string>Rotayı temizle</string>
+                      </property>
+                    </widget>
+                  </item>
+                </layout>
+              </item>
+              <item>
+                <widget class="QLabel" name="parameterNote">
+                  <property name="text">
+                    <string>PX4 parametreleri: önce mevcut değer okunur, yeni değer readback ile doğrulanır, test sonunda geri yüklenir. Yeniden başlatma gerektiren parametreleri kullanmayın.</string>
+                  </property>
+                  <property name="wordWrap">
+                    <bool>true</bool>
+                  </property>
+                </widget>
+              </item>
+              <item>
+                <widget class="QTableWidget" name="paramTable">
+                  <property name="columnCount">
+                    <number>2</number>
+                  </property>
+                  <column>
+                    <property name="text">
+                      <string>Parametre adı</string>
+                    </property>
+                  </column>
+                  <column>
+                    <property name="text">
+                      <string>Değer</string>
+                    </property>
+                  </column>
+                </widget>
+              </item>
+              <item>
+                <layout class="QHBoxLayout" name="paramButtons">
+                  <item>
+                    <widget class="QPushButton" name="addParamButton">
+                      <property name="text">
+                        <string>Parametre ekle</string>
+                      </property>
+                    </widget>
+                  </item>
+                  <item>
+                    <widget class="QPushButton" name="removeParamButton">
+                      <property name="text">
+                        <string>Seçili parametreyi sil</string>
+                      </property>
+                    </widget>
+                  </item>
+                </layout>
+              </item>
+            </layout>
+          </widget>
+          <widget class="QWidget" name="eventsTab">
+            <attribute name="title">
+              <string>3 • Olay zaman çizelgesi</string>
+            </attribute>
+            <layout class="QVBoxLayout" name="eventsTabLayout">
+              <item>
+                <widget class="QLabel" name="eventsNote">
+                  <property name="text">
+                    <string>Zaman ölçüm aşamasından başlar. Tür: wind / link / sensor. Wind A=m/s, B=yön°. Link A=kayıp%, B=gecikme ms (panel↔PX4). Sensor A=0 gyro,1 accel,2 mag,3 baro,4 GPS,5 mesafe; B=1 off,2 stuck. Süre sonunda geri alınır. Olaylar çakışamaz.</string>
+                  </property>
+                  <property name="wordWrap">
+                    <bool>true</bool>
+                  </property>
+                </widget>
+              </item>
+              <item>
+                <widget class="QTableWidget" name="eventsTable">
+                  <property name="columnCount">
+                    <number>5</number>
+                  </property>
+                  <column>
+                    <property name="text">
+                      <string>Zaman (sn)</string>
+                    </property>
+                  </column>
+                  <column>
+                    <property name="text">
+                      <string>Süre (sn)</string>
+                    </property>
+                  </column>
+                  <column>
+                    <property name="text">
+                      <string>Tür</string>
+                    </property>
+                  </column>
+                  <column>
+                    <property name="text">
+                      <string>A</string>
+                    </property>
+                  </column>
+                  <column>
+                    <property name="text">
+                      <string>B</string>
+                    </property>
+                  </column>
+                </widget>
+              </item>
+              <item>
+                <layout class="QHBoxLayout" name="eventButtons">
+                  <item>
+                    <widget class="QPushButton" name="addEventButton">
+                      <property name="text">
+                        <string>Olay ekle</string>
+                      </property>
+                    </widget>
+                  </item>
+                  <item>
+                    <widget class="QPushButton" name="removeEventButton">
+                      <property name="text">
+                        <string>Seçili olayı sil</string>
+                      </property>
+                    </widget>
+                  </item>
+                </layout>
+              </item>
+            </layout>
+          </widget>
+          <widget class="QWidget" name="batchTab">
+            <attribute name="title">
+              <string>4 • Toplu deney</string>
+            </attribute>
+            <layout class="QVBoxLayout" name="batchTabLayout">
+              <item>
+                <layout class="QFormLayout" name="batchForm">
+                  <item row="0" column="0">
+                    <widget class="QLabel" name="speedsEditLabel">
+                      <property name="text">
+                        <string>Hızlar (virgülle)</string>
+                      </property>
+                      <property name="wordWrap">
+                        <bool>true</bool>
+                      </property>
+                    </widget>
+                  </item>
+                  <item row="0" column="1">
+                    <widget class="QLineEdit" name="speedsEdit" />
+                  </item>
+                  <item row="1" column="0">
+                    <widget class="QLabel" name="windsEditLabel">
+                      <property name="text">
+                        <string>Rüzgâr hızları (virgülle)</string>
+                      </property>
+                      <property name="wordWrap">
+                        <bool>true</bool>
+                      </property>
+                    </widget>
+                  </item>
+                  <item row="1" column="1">
+                    <widget class="QLineEdit" name="windsEdit" />
+                  </item>
+                  <item row="2" column="0">
+                    <widget class="QLabel" name="repeatSpinLabel">
+                      <property name="text">
+                        <string>Tekrar sayısı</string>
+                      </property>
+                      <property name="wordWrap">
+                        <bool>true</bool>
+                      </property>
+                    </widget>
+                  </item>
+                  <item row="2" column="1">
+                    <widget class="QSpinBox" name="repeatSpin">
+                      <property name="minimum">
+                        <number>1</number>
+                      </property>
+                      <property name="maximum">
+                        <number>20</number>
+                      </property>
+                      <property name="value">
+                        <number>3</number>
+                      </property>
+                    </widget>
+                  </item>
+                  <item row="3" column="0">
+                    <widget class="QLabel" name="regressionSpinLabel">
+                      <property name="text">
+                        <string>Regresyon: ortalama hatada izin verilen artış</string>
+                      </property>
+                      <property name="wordWrap">
+                        <bool>true</bool>
+                      </property>
+                    </widget>
+                  </item>
+                  <item row="3" column="1">
+                    <widget class="QDoubleSpinBox" name="regressionSpin">
+                      <property name="minimum">
+                        <double>0.000000</double>
+                      </property>
+                      <property name="maximum">
+                        <double>1000.000000</double>
+                      </property>
+                      <property name="value">
+                        <double>20.000000</double>
+                      </property>
+                      <property name="suffix">
+                        <string> %</string>
+                      </property>
+                    </widget>
+                  </item>
+                </layout>
+              </item>
+              <item>
+                <widget class="QPushButton" name="baselineButton">
+                  <property name="text">
+                    <string>Referans sonuç JSON dosyası aç</string>
+                  </property>
+                </widget>
+              </item>
+              <item>
+                <widget class="QLabel" name="baselineLabel">
+                  <property name="text">
+                    <string>Regresyon referansı seçilmedi. Sürüm değişimini kullanıcı derleyip simülasyonu yeniden başlatarak yapar.</string>
+                  </property>
+                  <property name="wordWrap">
+                    <bool>true</bool>
+                  </property>
+                </widget>
+              </item>
+              <item>
+                <widget class="QLabel" name="batchNote">
+                  <property name="text">
+                    <string>Hız × rüzgâr × tekrar; en fazla 100 uçuş. Her uçuşun inişi ve koşul geri yüklemesi doğrulanır. Bilgisayarda Gazebo gerçek zaman hızını koruyamazsa süre sonuçları karşılaştırılmamalı.</string>
+                  </property>
+                  <property name="wordWrap">
+                    <bool>true</bool>
+                  </property>
+                </widget>
+              </item>
+            </layout>
+          </widget>
+          <widget class="QWidget" name="resultsTab">
+            <attribute name="title">
+              <string>5 • Sonuç karşılaştırma</string>
+            </attribute>
+            <layout class="QVBoxLayout" name="resultsTabLayout">
+              <item>
+                <widget class="QTableWidget" name="resultsTable">
+                  <property name="columnCount">
+                    <number>9</number>
+                  </property>
+                  <column>
+                    <property name="text">
+                      <string>Deney</string>
+                    </property>
+                  </column>
+                  <column>
+                    <property name="text">
+                      <string>Etiket</string>
+                    </property>
+                  </column>
+                  <column>
+                    <property name="text">
+                      <string>Durum</string>
+                    </property>
+                  </column>
+                  <column>
+                    <property name="text">
+                      <string>Hız</string>
+                    </property>
+                  </column>
+                  <column>
+                    <property name="text">
+                      <string>Rüzgâr</string>
+                    </property>
+                  </column>
+                  <column>
+                    <property name="text">
+                      <string>Ort. hata m</string>
+                    </property>
+                  </column>
+                  <column>
+                    <property name="text">
+                      <string>En büyük hata m</string>
+                    </property>
+                  </column>
+                  <column>
+                    <property name="text">
+                      <string>Kapsam %</string>
+                    </property>
+                  </column>
+                  <column>
+                    <property name="text">
+                      <string>Süre sn</string>
+                    </property>
+                  </column>
+                </widget>
+              </item>
+              <item>
+                <widget class="QLabel" name="summaryLabel">
+                  <property name="text">
+                    <string>En fazla dört sonuç seçerek rota ve hata eğrilerini karşılaştırın.</string>
+                  </property>
+                  <property name="wordWrap">
+                    <bool>true</bool>
+                  </property>
+                </widget>
+              </item>
+              <item>
+                <widget class="QWidget" name="chartHost">
+                  <layout class="QVBoxLayout" name="chartLayout" />
+                </widget>
+              </item>
+              <item>
+                <widget class="QPlainTextEdit" name="detailsEdit" />
+              </item>
+              <item>
+                <layout class="QHBoxLayout" name="resultButtons">
+                  <item>
+                    <widget class="QPushButton" name="exportJsonButton">
+                      <property name="text">
+                        <string>Sonuç JSON</string>
+                      </property>
+                    </widget>
+                  </item>
+                  <item>
+                    <widget class="QPushButton" name="exportCsvButton">
+                      <property name="text">
+                        <string>Örnekler CSV</string>
+                      </property>
+                    </widget>
+                  </item>
+                  <item>
+                    <widget class="QPushButton" name="reportButton">
+                      <property name="text">
+                        <string>HTML rapor</string>
+                      </property>
+                    </widget>
+                  </item>
+                  <item>
+                    <widget class="QPushButton" name="importResultButton">
+                      <property name="text">
+                        <string>Sonuç içe aktar</string>
+                      </property>
+                    </widget>
+                  </item>
+                </layout>
+              </item>
+            </layout>
+          </widget>
+        </widget>
+      </item>
+      <item>
+        <layout class="QHBoxLayout" name="runButtons">
+          <item>
+            <widget class="QPushButton" name="runButton">
+              <property name="text">
+                <string>Testi çalıştır</string>
+              </property>
+            </widget>
+          </item>
+          <item>
+            <widget class="QPushButton" name="batchButton">
+              <property name="text">
+                <string>Toplu deneyi çalıştır</string>
+              </property>
+            </widget>
+          </item>
+          <item>
+            <widget class="QPushButton" name="abortButton">
+              <property name="text">
+                <string>Testi iptal et ve inişe geç</string>
+              </property>
+            </widget>
+          </item>
+        </layout>
+      </item>
+      <item>
+        <widget class="QLabel" name="progressLabel">
+          <property name="text">
+            <string>Hazır • Simülasyonu önce ana panelden başlatın.</string>
+          </property>
+          <property name="wordWrap">
+            <bool>true</bool>
+          </property>
+        </widget>
+      </item>
+    </layout>
+  </widget>
+  <resources />
+  <connections />
+</ui>

@@ -1,0 +1,1 @@
+<RCC><qresource prefix="/launcher"><file>simulator_launcher.py</file><file>lab_profile.py</file><file>wind_action.py</file><file>fleet_profile.py</file><file>fleet_launcher.py</file><file>discover_px4.py</file></qresource></RCC>

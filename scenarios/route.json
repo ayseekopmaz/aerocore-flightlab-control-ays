@@ -1,0 +1,50 @@
+{
+    "altitude": 5,
+    "batteryDrain": 0,
+    "batteryMin": 10,
+    "batteryModel": "PX4 synthetic",
+    "cgX": 0,
+    "cgY": 0,
+    "cgZ": 0,
+    "duration": 30,
+    "dwell": 2,
+    "energyRequired": false,
+    "events": [
+    ],
+    "expectedMode": "",
+    "gpsNoise": 0,
+    "kind": "route",
+    "maxAltError": 1,
+    "maxError": 2,
+    "maxTilt": 30,
+    "maxTime": 180,
+    "minCoverage": 0.8,
+    "name": "Rota takibi",
+    "parameters": {
+    },
+    "payload": 0,
+    "route": [
+        [
+            10,
+            0
+        ],
+        [
+            10,
+            10
+        ],
+        [
+            0,
+            10
+        ],
+        [
+            0,
+            0
+        ]
+    ],
+    "schema": 1,
+    "speed": 3,
+    "vehicle": "x500",
+    "versionTag": "baseline",
+    "windDirection": 0,
+    "windSpeed": 0
+}

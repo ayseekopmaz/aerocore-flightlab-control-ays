@@ -1,0 +1,34 @@
+{
+    "altitude": 5,
+    "batteryDrain": 45,
+    "batteryMin": 10,
+    "batteryModel": "PX4 synthetic",
+    "cgX": 0,
+    "cgY": 0,
+    "cgZ": 0,
+    "duration": 60,
+    "dwell": 2,
+    "energyRequired": false,
+    "events": [
+    ],
+    "expectedMode": "Return",
+    "gpsNoise": 0,
+    "kind": "battery",
+    "maxAltError": 1,
+    "maxError": 2,
+    "maxTilt": 30,
+    "maxTime": 180,
+    "minCoverage": 0.8,
+    "name": "Batarya ve dayanıklılık",
+    "parameters": {
+    },
+    "payload": 0,
+    "route": [
+    ],
+    "schema": 1,
+    "speed": 3,
+    "vehicle": "x500",
+    "versionTag": "baseline",
+    "windDirection": 0,
+    "windSpeed": 0
+}
