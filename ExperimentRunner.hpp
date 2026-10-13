@@ -3,6 +3,7 @@
 #include "LabTransport.hpp"
 #include "SimulatorSession.hpp"
 #include <QObject>
+#include <functional>
 class ExperimentRunner final:public QObject {
     Q_OBJECT
 public:
@@ -11,6 +12,9 @@ public:
     void tick(double now);
     void abort(const QString& reason="Operatör iptal etti.");
     bool busy()const{return phase_!=Phase::Idle;}
+    std::function<bool()> measurementBarrier;
+    std::function<double()> commonMeasurementEpoch;
+    bool settled()const{return settled_;}
     bool measuring()const{return phase_==Phase::Measure;}
     const LabResult& current()const{return result_;}
     QString phaseText()const;
@@ -27,6 +31,7 @@ private:
     QVector<LabSpec> specs_;int runIndex_=0,point_=0,event_=0;
     double phaseAt_=0,startAt_=0,measureAt_=0,lastPosition_=0,lastPower_=0,lastActuators_=0,withinAt_=0,dwellAt_=0,landAt_=0;
     double lastTick_=0,freshSeconds_=0,climbAt_=0;bool actuatorRequested_=false,climbReached_=false,routeSent_=false,activeEvent_=false,eventEnding_=false;
+    bool settled_=false;
     bool stopping_=false,complete_=false,unsafe_=false,sensorObserved_=false,modeObserved_=false;
     int initialMode_=0,lastSensorUnit_=0;bool sensorNeedsReset_=false;
     QString waiting_,fatal_;LabAction pendingAction_;

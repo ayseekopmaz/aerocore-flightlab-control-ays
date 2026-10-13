@@ -38,6 +38,13 @@ SimulatorSession::SimulatorSession(QObject *parent):QObject(parent){
     discovery_.setCreateProcessArgumentsModifier(hideConsole);
     #endif
     process_.setProcessChannelMode(QProcess::MergedChannels);
+    connect(&process_,&QProcess::started,this,[this]{
+        if(launchPayload_.isEmpty())return;
+        if(process_.write(launchPayload_)!=launchPayload_.size()){
+            launchPayload_.clear();reportFailure("Başlatıcı verisi WSL girişine yazılamadı.");process_.kill();return;
+        }
+        launchPayload_.clear();
+    });
     discovery_.setProcessChannelMode(QProcess::MergedChannels);
     queryTimeout_.setSingleShot(true);queryTimeout_.setInterval(30000);
     connect(&queryTimeout_,&QTimer::timeout,this,[this]{
@@ -79,7 +86,7 @@ SimulatorSession::SimulatorSession(QObject *parent):QObject(parent){
     connect(&process_,&QProcess::readyReadStandardOutput,this,[this]{
         QString chunk=decodeOutput(process_.readAllStandardOutput());
         chunk.remove(QRegularExpression("\\x1B\\[[0-?]*[ -/]*[@-~]"));chunk.remove('\r');emit log(chunk);
-        output_=(output_+chunk).right(12000);
+        output_=(output_+chunk).right(1024*1024);
         auto fleetManifest=QRegularExpression("AERO_FLEET: ([^\\r\\n]+)[\\r\\n]").match(output_);
         if(fleetManifest.hasMatch()){
             auto m=QJsonDocument::fromJson(fleetManifest.captured(1).toUtf8()).object();partition_=m["partition"].toString();
@@ -146,10 +153,17 @@ void SimulatorSession::launch(){
     QFile profileScript(":/launcher/lab_profile.py");
     if(!profileScript.open(QIODevice::ReadOnly)){reportFailure("Model profili kaynağı bulunamadı.");owned_=false;emit ended();return;}
     QString source=QString::fromUtf8(profileScript.readAll())+"\n";
-    if(!fleet_.isEmpty()){QFile f(":/launcher/fleet_profile.py");if(!f.open(QIODevice::ReadOnly)){reportFailure("Fleet profile kaynağı yok.");owned_=false;emit ended();return;}source+=QString::fromUtf8(f.readAll())+"\n";}
+    if(!fleet_.isEmpty()){
+        QFile custom(":/launcher/iha_model.py");if(!custom.open(QIODevice::ReadOnly)){reportFailure("IHA model kaynağı yok.");owned_=false;emit ended();return;}
+        source+=QString::fromUtf8(custom.readAll())+"\n";
+        QFile f(":/launcher/fleet_profile.py");if(!f.open(QIODevice::ReadOnly)){reportFailure("Fleet profile kaynağı yok.");owned_=false;emit ended();return;}source+=QString::fromUtf8(f.readAll())+"\n";}
     source+=QString::fromUtf8(script.readAll());
     const QJsonObject config=fleet_.isEmpty()?profile_:QJsonObject{{"vehicles",fleet_},{"gateway",gateway_}};
-    process_.start(wslProgram(),{"-d",distribution_,"--exec","python3","-u","-c",source,repository_,QString::fromUtf8(QJsonDocument(config).toJson(QJsonDocument::Compact))});timeout_.start();
+    QFile bootstrap(":/launcher/launcher_bootstrap.py");
+    if(!bootstrap.open(QIODevice::ReadOnly)){reportFailure("Kısa başlatıcı kaynağı bulunamadı.");owned_=false;emit ended();return;}
+    launchPayload_=QJsonDocument(QJsonObject{{"source",source},{"repository",repository_},{"config",config}}).toJson(QJsonDocument::Compact)+"\n";
+    // Keep Windows CreateProcess command short; Python source/JSON are sent via stdin.
+    process_.start(wslProgram(),{"-d",distribution_,"--exec","python3","-u","-c",QString::fromUtf8(bootstrap.readAll())});timeout_.start();
 }
 void SimulatorSession::stop(){
     stage_=Stage::Idle;queryTimeout_.stop();discovery_.kill();commands_.stop();queue_.clear();

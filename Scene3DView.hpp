@@ -16,6 +16,7 @@ public:
     void followSelected(){follow_=true;update();}
     void setFollowing(bool on){follow_=on;update();}
     void resetView();
+    void setIhaStyle(bool enabled){ihaStyle_=enabled;resetView();}
     void resetOrigin(){originReady_=false;center_={};follow_=true;update();}
     std::function<bool(int)> selected;
 protected:
@@ -28,6 +29,7 @@ private:
     std::shared_ptr<FlightState>state_;
     QVector<QPointF>plan_;QMap<int,QPointF>hit_;
     QPointF lastMouse_,center_;double originLat_=0,originLon_=0,azimuth_=38,elevation_=36,distance_=65;
+    bool ihaStyle_=false;
     bool originReady_=false,dragged_=false,follow_=true;
     void ensureOrigin(double now);
     QVector3D toWorld(double lat,double lon,double altitude)const;

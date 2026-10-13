@@ -14,6 +14,8 @@ public:
     void setConfiguration(const QString &distribution,const QString &repository){distribution_=distribution;repository_=repository;}
     void setLabProfile(const QJsonObject &p){profile_=p;}
     virtual QJsonObject labProfile()const{return profiles_.contains(activeSystem_)?profiles_[activeSystem_]["profile"].toObject():profile_;}
+    QJsonObject labProfileFor(int n)const{return profiles_.contains(n)?profiles_[n]["profile"].toObject():labProfile();}
+    QString profileHashFor(int n)const{return profiles_.contains(n)?profiles_[n]["sha256"].toString():profileHash();}
     void setFleet(const QJsonArray&v){fleet_=v;}
     void setActiveSystem(int n){activeSystem_=n;}
     QJsonObject vehicleProfile(int n)const{if(profiles_.contains(n))return profiles_.value(n);for(auto v:fleet_)if(v.toObject()["system"].toInt()==n)return v.toObject();return {};}
@@ -46,6 +48,7 @@ private:
     QJsonObject profile_;
     QJsonArray fleet_;QMap<int,QJsonObject> profiles_;int activeSystem_=1;
     QStringList queue_;
+    QByteArray launchPayload_;
     bool owned_=false,configured_=false;
     void query(const QStringList &args,Stage stage);
     void launch();

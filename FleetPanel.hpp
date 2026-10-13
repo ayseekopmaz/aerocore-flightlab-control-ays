@@ -20,6 +20,7 @@ public:
     QJsonArray profiles(QString&error)const;
     void setActive(bool);
     int count()const;
+    void setCount(int n);
     void bindState(std::shared_ptr<FlightState>);
 signals:
     void compareRequested();

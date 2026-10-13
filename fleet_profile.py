@@ -24,7 +24,7 @@ def validate_fleet(config):
     if not isinstance(vehicles, list) or not 1 <= len(vehicles) <= 3:
         raise ValueError('Fleet size must be 1–3.')
     for index, v in enumerate(vehicles):
-        if not isinstance(v, dict) or set(v) != {'system', 'name', 'profile', 'parameters', 'batteryModel'}:
+        if not isinstance(v, dict) or set(v) not in ({'system', 'name', 'profile', 'parameters', 'batteryModel'}, {'system', 'name', 'profile', 'parameters', 'batteryModel', 'hardware'}):
             raise ValueError('Invalid vehicle fields.')
         if type(v['system']) is not int or v['system'] != index + 1:
             raise ValueError('System IDs must be contiguous from 1.')
@@ -49,6 +49,11 @@ def validate_fleet(config):
 
 def prepare_fleet_profile(repo, config):
     vehicles = validate_fleet(config)
+    if any('hardware' in v for v in vehicles):
+        factory=globals().get('prepare_iha_fleet')
+        if factory is None:
+            from iha_model import prepare_iha_fleet as factory
+        return factory(repo,config)
     temp = tempfile.TemporaryDirectory(prefix='aerocore-fleet-')
     root = Path(temp.name)
     (root / 'models').mkdir(); (root / 'worlds').mkdir()

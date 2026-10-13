@@ -10,7 +10,11 @@ public:
     LabPanel(std::shared_ptr<FlightState>,SimulatorSession*,LabTransport*,QWidget*);
     ~LabPanel()override;
     LabSpec spec(QString& error)const;
-    bool busy()const{return runner_->busy()||comparing_;}
+    bool busy()const{return runner_->busy()||comparing_||(externalMissionBusy&&externalMissionBusy());}
+    std::function<bool()> externalMissionBusy;
+    std::function<void()> abortExternalMission;
+    void exportResultsPdf();
+    void addMissionResult(const LabResult&r){result(r);}
     void compareFleet();
     void selectedVehicleChanged();
     void tick(double now);

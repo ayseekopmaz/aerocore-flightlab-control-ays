@@ -8,6 +8,10 @@
 #include "SessionRecording.hpp"
 #include "Scene3DView.hpp"
 #include "CameraPanel.hpp"
+#include "HardwarePanel.hpp"
+#include "IhaMissionCoordinator.hpp"
+#include "AuraRelayCoordinator.hpp"
+#include "WindFormationCoordinator.hpp"
 #include "EnvironmentDiscovery.hpp"
 #include <QTabWidget>
 #include <QFrame>
@@ -64,10 +68,11 @@ SitlPanel::SitlPanel(QWidget *parent):QWidget(parent){
     auto *session=new SimulatorSession(this);auto *socket=new QUdpSocket(this);
     auto *timer=new QTimer(this);timer->setInterval(50);timer->start();
     Ui::SitlPanel ui;ui.setupUi(this);
+    auto *hardware=new HardwarePanel(this);ui.workspaceTabs->addTab(hardware,"IHA Maker");
     auto*fleet=new FleetPanel(this);fleet->bindState(state);auto*replay=new ReplayPanel(this);
     ui.workspaceTabs->addTab(fleet,"Araç profilleri / çoklu drone");ui.workspaceTabs->addTab(replay,"Kayıt oynatma");
     auto*scenePage=new QWidget(this);scenePage->setObjectName("liveScenePage");auto*sceneLayout=new QVBoxLayout(scenePage);
-    auto*sceneBar=new QHBoxLayout;auto*sceneLegend=new QLabel("● SYS 1 PEMBE     ● SYS 2 KIRMIZI     ● SYS 3 SARI     •     Grid: telemetri için 3B referans düzlemi");sceneLegend->setStyleSheet("color:#17365D;font-weight:600;padding:8px;");sceneBar->addWidget(sceneLegend,1);
+    auto*sceneBar=new QHBoxLayout;auto*sceneLegend=new QLabel("● SYS 1 PEMBE     ● SYS 2 KIRMIZI     ● SYS 3 SARI     •     Grid: telemetri için 3B referans düzlemi");sceneLegend->setText("SYS 1 / SYS 2 / SYS 3 • Canlı drone konumları • IHA Maker görünümü başlatmada uygulanır");sceneLegend->setStyleSheet("color:#17365D;font-weight:600;padding:8px;");sceneBar->addWidget(sceneLegend,1);
     auto*follow3D=new QCheckBox("Seçili drone'u izle");follow3D->setChecked(true);auto*reset3D=new QPushButton("Görünümü sıfırla");sceneBar->addWidget(follow3D);sceneBar->addWidget(reset3D);sceneLayout->addLayout(sceneBar);
     auto*sceneSplit=new QSplitter(Qt::Horizontal,scenePage);auto*scene=new Scene3DView(state);auto*sceneCamera=new CameraPanel(scenePage);sceneSplit->addWidget(scene);sceneSplit->addWidget(sceneCamera);sceneSplit->setStretchFactor(0,3);sceneSplit->setStretchFactor(1,2);sceneLayout->addWidget(sceneSplit,1);
     ui.workspaceTabs->insertTab(1,scenePage,"3B GÖREV SAHNESİ");
@@ -93,13 +98,38 @@ SitlPanel::SitlPanel(QWidget *parent):QWidget(parent){
     ui.viewsSplitter->setStretchFactor(0,3);ui.viewsSplitter->setStretchFactor(1,2);
     auto *table=ui.telemetryTable;table->horizontalHeader()->setSectionResizeMode(QHeaderView::Stretch);
     table->setEditTriggers(QAbstractItemView::NoEditTriggers);table->setMaximumHeight(125);
-    auto *logs=ui.logEdit;logs->setMaximumHeight(170);auto *saveLogs=ui.exportButton;
+    auto *logs=ui.logEdit;logs->setMaximumBlockCount(2000);logs->setMaximumHeight(170);auto *saveLogs=ui.exportButton;
     auto *transport=new LabTransport(state,session,socket,this);
     auto *lab=new LabPanel(state,session,transport,this);ui.labHostLayout->addWidget(lab);lab->externalCommandPending=[control]{return control->pending!=0;};
+    connect(hardware,&HardwarePanel::exportResultsPdfRequested,lab,&LabPanel::exportResultsPdf);
     connect(lab,&LabPanel::routeChanged,map,&MapView::setPlan);
     connect(lab,&LabPanel::routeChanged,scene,&Scene3DView::setPlan);
     connect(lab,&LabPanel::routeChanged,this,[recording](const QVector<QPointF>&p){QJsonArray route;for(auto q:p)route.append(QJsonArray{q.x(),q.y()});recording->updateMetadata({{"routePlan",route}});});map->pointAdded=[lab](double lat,double lon){lab->addMapPoint(lat,lon);};
     const auto log=[logs,recording](const QString &text){recording->event(text,sitl::monoSeconds());logs->appendPlainText(QDateTime::currentDateTime().toString("HH:mm:ss")+"  "+text.trimmed());logs->moveCursor(QTextCursor::End);};
+    auto *missions=new IhaMissionCoordinator(state,session,socket,this);
+    auto *relay=new AuraRelayCoordinator(state,session,socket,this);
+    auto *windFormation=new WindFormationCoordinator(state,session,socket,this);
+    lab->externalMissionBusy=[missions,relay,windFormation]{return missions->busy()||relay->busy()||windFormation->busy();};
+    lab->abortExternalMission=[missions,relay,windFormation]{if(windFormation->busy())windFormation->abort();else if(relay->busy())relay->abort();else missions->abort();};
+    connect(missions,&IhaMissionCoordinator::log,this,log);
+    connect(missions,&IhaMissionCoordinator::status,hardware,&HardwarePanel::setMissionStatus);
+    connect(missions,&IhaMissionCoordinator::finished,lab,&LabPanel::addMissionResult);
+    connect(relay,&AuraRelayCoordinator::log,this,log);
+    connect(relay,&AuraRelayCoordinator::status,hardware,&HardwarePanel::setMissionStatus);
+    connect(relay,&AuraRelayCoordinator::telemetry,hardware,&HardwarePanel::setRelayTelemetry);
+    connect(relay,&AuraRelayCoordinator::finished,lab,&LabPanel::addMissionResult);
+    connect(hardware,&HardwarePanel::stopIhaRequested,this,[missions,relay,windFormation]{if(windFormation->busy())windFormation->abort();else if(relay->busy())relay->abort();else missions->abort();});
+    connect(windFormation,&WindFormationCoordinator::log,this,log);
+    connect(windFormation,&WindFormationCoordinator::status,hardware,&HardwarePanel::setMissionStatus);
+    connect(windFormation,&WindFormationCoordinator::telemetry,hardware,&HardwarePanel::setRelayTelemetry);
+    connect(windFormation,&WindFormationCoordinator::finished,lab,&LabPanel::addMissionResult);
+    connect(hardware,&HardwarePanel::startIhaRequested,this,[=]{
+        if(lab->busy()||control->pending){hardware->setMissionStatus("Önce etkin test/komutun bitmesini bekle.");return;}
+        if(!session->active()){if(!start->isEnabled()){hardware->setMissionStatus("Kurulum taraması bitince başlat.");return;}fleet->setCount(3);start->click();}
+        else {if(session->vehicleCount()!=3){hardware->setMissionStatus("Oturumu kapat; IHA Maker başlat ile üç aracı oluştur.");return;}for(int n=1;n<=3;++n)if(!session->vehicleProfile(n).contains("hardware")){hardware->setMissionStatus("Mevcut oturum IHA Maker modeli değil; kapatıp yeniden başlat.");return;}}
+        QString error;if(!(hardware->windSelected()?windFormation->request(error):hardware->relaySelected()?relay->request(error):missions->request(error))){hardware->setMissionStatus(error);return;}
+        hardware->setMissionBusy(true);if(!hardware->relaySelected()&&!hardware->windSelected())ui.workspaceTabs->setCurrentWidget(scenePage);
+    });
     auto manualScan=std::make_shared<bool>(false);
     connect(discoverButton,&QPushButton::clicked,this,[discover,manualScan]{*manualScan=true;discover->start();});
     connect(discover,&EnvironmentDiscovery::busyChanged,this,[=](bool busy){
@@ -146,7 +176,7 @@ SitlPanel::SitlPanel(QWidget *parent):QWidget(parent){
     });
     connect(session,&SimulatorSession::ready,this,[=]{control->configured=true;QJsonArray manifests;for(int sys=1;sys<=session->vehicleCount();++sys)manifests.append(session->vehicleProfile(sys));recording->updateMetadata(QJsonObject{{"manifest",manifests},{"firmware",session->firmware()},{"world","aerocore_lab"}});lab->selectedVehicleChanged();control->failure.clear();status->setStyleSheet("");status->setText("PX4 akışı yapılandırıldı; heartbeat bekleniyor…");});
     connect(session,&SimulatorSession::ended,this,[=]{
-        lab->sessionEnded();QString error;if(recording->recording()){if(recording->save(error))log("Oturum kaydedildi: "+recording->path());else log("Kayıt yazılamadı: "+error);}fleet->setActive(false);socket->close();state->vehicles.clear();state->peer.clear();control->configured=false;control->pending=0;
+        missions->sessionEnded();relay->sessionEnded();windFormation->sessionEnded();hardware->setMissionBusy(false);lab->sessionEnded();QString error;if(recording->recording()){if(recording->save(error))log("Oturum kaydedildi: "+recording->path());else log("Kayıt yazılamadı: "+error);}fleet->setActive(false);socket->close();state->vehicles.clear();state->peer.clear();control->configured=false;control->pending=0;
         start->setEnabled(!discover->busy());discoverButton->setEnabled(!discover->busy());stop->setEnabled(false);distribution->setEnabled(true);repository->setEnabled(true);if(control->failure.isEmpty())status->setText("Simülasyon oturumu kapalı.");commandStatus->setText("Komut: yok / oturum kapalı");
     });
     connect(start,&QPushButton::clicked,this,[=]{
@@ -155,13 +185,19 @@ SitlPanel::SitlPanel(QWidget *parent):QWidget(parent){
         if(distribution->text().trimmed().isEmpty()||repository->text().trimmed().isEmpty()){socket->close();log("Dağıtım ve PX4 klasörü boş olamaz.");return;}
         QString specError;auto spec=lab->spec(specError);if(!specError.isEmpty()){socket->close();log("Test senaryosu geçersiz: "+specError);return;}
         QString fleetError;auto profiles=fleet->profiles(fleetError);if(!fleetError.isEmpty()){socket->close();log(fleetError);return;}
+        if(hardware->enabledForSimulation()){
+            QString hardwareError;const auto definition=hardware->simulationProfile(hardwareError);
+            if(!hardwareError.isEmpty()){socket->close();log(hardwareError);return;}
+            for(qsizetype index=0;index<profiles.size();++index){auto v=profiles[index].toObject();v["hardware"]=definition;profiles[index]=v;}
+            log("Özel IHA Maker modeli seçildi. Aktif donanım profili uygulanıyor; geometri/atalet yaklaşık.");
+        }
         session->setFleet(profiles);selected->setRange(1,profiles.size());session->setActiveSystem(selected->value());
         session->setLabProfile(spec.profile());fleet->setActive(true);
         QDir records(QStandardPaths::writableLocation(QStandardPaths::AppDataLocation)+"/recordings");QDir().mkpath(records.path());
         recording->start(records.filePath(QDateTime::currentDateTimeUtc().toString("yyyyMMdd_HHmmss_zzz")+".json"),QJsonObject{{"vehicles",profiles},{"started",QDateTime::currentDateTimeUtc().toString(Qt::ISODateWithMs)},{"version","0.7.2"}});
         session->setConfiguration(distribution->text().trimmed(),repository->text().trimmed());
         QSettings settings;settings.setValue("wsl/distribution",distribution->text().trimmed());settings.setValue("wsl/repository",repository->text().trimmed());
-        state->vehicles.clear();scene->resetOrigin();state->parser=sitl::MavlinkParser{};state->peer.clear();*control=ControlState{};
+        state->vehicles.clear();scene->resetOrigin();scene->setIhaStyle(hardware->enabledForSimulation());state->parser=sitl::MavlinkParser{};state->peer.clear();*control=ControlState{};
         status->setStyleSheet("");distribution->setEnabled(false);repository->setEnabled(false);discoverButton->setEnabled(false);
         start->setEnabled(false);stop->setEnabled(true);status->setText("WSL / Gazebo / PX4 başlatılıyor…");session->start();
     });
@@ -223,7 +259,7 @@ SitlPanel::SitlPanel(QWidget *parent):QWidget(parent){
                         if(packet->result==5)control->sentAt=now;else control->pending=0;
                     }break;
                 }
-                transport->feed(*packet);
+                transport->feed(*packet);missions->feed(*packet);relay->feed(*packet);windFormation->feed(*packet);
             }
         }
         if(control->pending&&now-control->sentAt>10){commandStatus->setText("Komut onayı zaman aşımı — sonuç bilinmiyor; canlı uçuş durumunu kontrol edin.");log(commandStatus->text());control->pending=0;}
@@ -244,8 +280,8 @@ SitlPanel::SitlPanel(QWidget *parent):QWidget(parent){
         arm->setEnabled(can&&ground&&!vehicle->armed);takeoff->setEnabled(can&&ground&&vehicle->armed&&now-vehicle->posAt<3);land->setEnabled(can&&vehicle->armed);disarm->setEnabled(can&&ground&&vehicle->armed);
         bool anyArmed=false;for(const auto &v:state->vehicles)anyArmed|=v.armed&&now-v.heartbeatAt<3;
         stop->setEnabled(session->active()&&!anyArmed&&!lab->busy());
-        selected->setEnabled(!lab->busy());
-        lab->tick(now);
+        selected->setEnabled(!lab->busy()||missions->busy()||relay->busy()||windFormation->busy());
+        missions->tick(now);relay->tick(now);windFormation->tick(now);hardware->setMissionBusy(missions->busy()||relay->busy()||windFormation->busy());lab->tick(now);
         if(selected->value()!=state->selected){QSignalBlocker block(selected);selected->setValue(state->selected);sceneCamera->setSystem(state->selected);}
         if(recording->recording()&&!recording->capture(*state,now)){QString error;recording->save(error);log(error.isEmpty()?"Kayıt 18000 kare sınırına ulaştı ve tamamlandı.":"Kayıt hatası: "+error);}
         if(control->configured&&control->failure.isEmpty()){const auto &stats=state->parser.stats();status->setText(QString("%1 • Araç %2 • Geçerli paket %3 • CRC hatası %4").arg(state->vehicles.isEmpty()?"TELEMETRİ BEKLENİYOR":warning?"UYARI: bağlantı / batarya / irtifa":"CANLI SİMÜLASYON").arg(state->vehicles.size()).arg(stats.valid).arg(stats.badCrc));}

@@ -1,5 +1,6 @@
 """One Gazebo server, independent PX4 instances/PTYs and bounded owned cleanup."""
 import errno
+import re
 import os
 import json
 import hashlib
@@ -14,6 +15,16 @@ import subprocess
 import sys
 import termios
 import time
+
+
+def readable_console_line(raw):
+    text=raw.decode(errors='replace')
+    text=re.sub(r'\x1b\[[0-?]*[ -/]*[@-~]', '', text)
+    # pxh redraws its prompt after every typed character; don't flood the Qt UI.
+    marker=re.search(r'(?:INFO|WARN|ERROR|DEBUG)\s+\[', text)
+    if marker:return text[marker.start():].replace('\r','').strip()
+    if 'pxh>' in text:return ''
+    return text.replace('\r','').strip()
 
 
 def terminate_owned(processes):
@@ -87,7 +98,7 @@ def fleet_main():
             # PX4 rcS supports validated PX4_PARAM_<name> boot overrides.
             # Battery timing remains scoped to experiments rather than consuming
             # charge during operator setup. Runner reads back all requested values.
-            for key,value in v['parameters'].items():
+            for key,value in {**v['parameters'],**v.get('modelParameters',{})}.items():
                 if key not in ('SIM_BAT_DRAIN', 'SIM_BAT_MIN_PCT'):
                     child_env['PX4_PARAM_'+key] = str(value)
             try:
@@ -132,7 +143,8 @@ def fleet_main():
                 t['bytes']+=data
                 while b'\n' in t['bytes']:
                     line,t['bytes']=t['bytes'].split(b'\n',1)
-                    print('[SYS '+str(t['system'])+'] '+line.decode(errors='replace').rstrip('\r'), flush=True)
+                    clean=readable_console_line(line)
+                    if clean:print('[SYS '+str(t['system'])+'] '+clean, flush=True)
                 if len(t['bytes'])>4096: t['bytes']=t['bytes'][-4096:]
                 if not t['started'] and b'Startup script returned successfully' in t['history']:
                     t['started']=True; port=t['port']

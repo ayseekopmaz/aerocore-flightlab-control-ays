@@ -1,4 +1,5 @@
 #include "LabTypes.hpp"
+#include "ModelIdentity.hpp"
 #include <QRegularExpression>
 #include <cmath>
 namespace {
@@ -10,7 +11,7 @@ LabSpec labPreset(const QString&k){LabSpec s;s.kind=k;s.name=labKindName(k);if(k
 QJsonObject LabSpec::profile()const{return {{"payload",payload},{"cgX",cgX},{"cgY",cgY},{"cgZ",cgZ},{"gpsNoise",gpsNoise}};}
 QJsonObject LabSpec::json()const{QJsonObject p;for(auto it=parameters.begin();it!=parameters.end();++it)p[it.key()]=it.value();QJsonArray e;for(auto x:events)e.append(QJsonObject{{"at",x.at},{"duration",x.duration},{"a",x.a},{"b",x.b},{"type",x.type}});return {{"schema",1},{"name",name},{"kind",kind},{"vehicle",vehicle},{"versionTag",versionTag},{"altitude",altitude},{"duration",duration},{"speed",speed},{"dwell",dwell},{"maxError",maxError},{"maxAltError",maxAltError},{"maxTilt",maxTilt},{"maxTime",maxTime},{"minCoverage",minCoverage},{"windSpeed",windSpeed},{"windDirection",windDirection},{"payload",payload},{"cgX",cgX},{"cgY",cgY},{"cgZ",cgZ},{"gpsNoise",gpsNoise},{"batteryDrain",batteryDrain},{"batteryMin",batteryMin},{"energyRequired",energyRequired},{"batteryModel",batteryModel},{"expectedMode",expectedMode},{"parameters",p},{"route",points(route)},{"events",e}};}
 QString LabSpec::validate()const{
-    if(name.trimmed().isEmpty()||name.size()>160||labKindName(kind).isEmpty()||vehicle!="x500")return "Geçersiz test adı / türü / araç. Bu sürüm x500 destekler.";
+    if(name.trimmed().isEmpty()||name.size()>160||labKindName(kind).isEmpty()||!aero::supportedModel(vehicle.toStdString()))return "Geçersiz test adı / türü / araç. x500 veya iha_maker_1/2/3 gerekli.";
     const auto bounds=QVector<std::tuple<double,double,double>>{{altitude,2,30},{duration,5,1800},{speed,.2,10},{dwell,0,60},{maxError,.1,100},{maxAltError,.1,30},{maxTilt,1,85},{maxTime,30,3600},{minCoverage,.1,1},{windSpeed,0,15},{windDirection,0,360},{payload,0,2},{cgX,-.5,.5},{cgY,-.5,.5},{cgZ,-.5,.5},{gpsNoise,0,10},{batteryDrain,0,3600},{batteryMin,0,100}};
     for(auto [n,lo,hi]:bounds)if(!finite(n,lo,hi))return "Sayısal değer sınır dışında / sonlu değil.";
     if(maxTime<duration+20)return "Toplam zaman aşımı, ölçüm süresinden en az 20 sn uzun olmalı.";

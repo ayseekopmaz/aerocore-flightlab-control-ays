@@ -76,4 +76,26 @@ Geliştirme ortamında Linux/Qt 6.4 derlemesi ve testler çalıştırıldı; Win
 - Sensör arızası ve failsafe davranışı kullanılan PX4 derlemesine bağlıdır; komut onayı tek başına etki kanıtı sayılmaz. Ölçüm kanıtı eksikse sonuç `INCONCLUSIVE` olabilir.
 - Oturum kaydı uygulamanın telemetri örnekleridir; PX4 ULog veya Gazebo video dosyası yerine geçmez. Araç karşılaştırması eşzamanlı sürü uçuşu değil, sırayla yapılan deneydir.
 
+GitHub'a yükleme öncesi kontrol listesi için [GITHUB_RELEASE_TR.md](GITHUB_RELEASE_TR.md). Açık kaynak kullanımı düşünülüyorsa proje sahibi uygun bir `LICENSE` dosyası seçmelidir.
 
+
+## IHA Maker özel drone modeli
+
+Yeni IHA Maker sekmesinde PDF profili ve tasarım bağlantısı vardır.
+Model seçeneği varsayılan açıkken Başlat, ayrı iha_maker Gazebo modeli oluşturur.
+Kütle, CG, boyut, pervane çapı, maksimum itki/devir uygulanır; yaklaşık geometri,
+atalet ve motor yanıt varsayımları açıkça kaydedilir. Kamerasensörü eklenmiştir.
+Varsayılan yeni PDF V2 profili 599 g, 220 mm, 6S ve 5.1 inçtir. Atölye uçabilir der; simülasyon/gerçek uçuş doğrulaması tamamlanmamıştır. Eski V1 korunur.
+IHA Maker'da parça seçimini güncelleyin, yeni rapor verileriyle JSON'u güncelleyin
+ve yeniden başlatın. Otomatik site/PDF aktarımı yoktur.
+Ayrıntılar: IHA_MAKER_TR.md. Önceki kamera, çoklu araç, deney, kayıt özellikleri korunur.
+
+IHA Maker sekmesi marka yerine birimli sayısal özellik formu ve kamera var seçeneği kullanır. Diğer sekmelerin yerleşimi korunur.
+
+Tam iş akışı BASLA_IHA_MAKER.md dosyasında. 60 s hover/rota senaryoları, sonuçlardan PDF karşılaştırması ve ayrıca etiketlenen tüketim tahmini eklenmiştir. Windows uzun komut hatası stdin aktarımıyla düzeltilmiştir.
+
+IHA Maker sekmesindeki IHA Maker başlat — 3 drone düğmesi üç ayrı yön görevini başlatır. Kullanım ve sınırlamalar IHA_UC_DRONE_BASLAT.md dosyasında.
+
+Aura-Relay ayrı görev seçeneği olarak eklendi. Kullanım, ölçütler ve enerji/şarj sınırlamaları AURA_RELAY_BASLA.md içinde. Önceki üç yön görevi korunur.
+
+Referans PDF açma kaldırıldı. Deney sonuç PDF çıktısı korunur. Rüzgar Hamlesinde Dinamik Sürü formasyon kontrol prototipi ve sabit/adaptif koşuları eklendi; kullanım ve fizik sınırlamaları RUZGAR_SURU_BASLA.md içinde.

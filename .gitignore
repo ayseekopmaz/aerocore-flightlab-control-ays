@@ -1,0 +1,29 @@
+# Qt Creator / CMake outputs
+/build*/
+/cmake-build-*/
+CMakeFiles/
+*.user
+*.user.*
+CMakeUserPresets.json
+compile_commands.json
+.qtcreator/
+.idea/
+.vscode/
+
+# Local test runs and flight data
+/recordings/
+/experiments/
+*.ulg
+*.tlog
+*.log
+*.tmp
+__pycache__/
+*.pyc
+*.zip
+
+# Local secrets and connection configuration
+.env
+.env.*
+*.pem
+*.p12
+*.key

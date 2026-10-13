@@ -44,6 +44,7 @@ FleetPanel::FleetPanel(QWidget*p):QWidget(p){
     connect(count_,qOverload<int>(&QSpinBox::valueChanged),this,[this](int n){for(int i=0;i<3;++i)table_->setRowHidden(i,i>=n);});
     connect(saveButton,&QPushButton::clicked,this,&FleetPanel::save);connect(loadButton,&QPushButton::clicked,this,&FleetPanel::load);connect(compare,&QPushButton::clicked,this,&FleetPanel::compareRequested);
 }
+void FleetPanel::setCount(int n){if(count_->isEnabled())count_->setValue(n);}
 int FleetPanel::count()const{return count_->value();}
 void FleetPanel::setActive(bool active){count_->setEnabled(!active);table_->setEnabled(!active);}
 QJsonArray FleetPanel::profiles(QString&e)const{

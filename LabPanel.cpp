@@ -2,6 +2,7 @@
 #include "ui_labpanel.h"
 #include "LabChart.hpp"
 #include "FleetPanel.hpp"
+#include "FlightReport.hpp"
 #include <QTimer>
 #include <QVBoxLayout>
 #include <QFileDialog>
@@ -46,11 +47,13 @@ LabPanel::LabPanel(std::shared_ptr<FlightState>s,SimulatorSession*session,LabTra
     connect(ui_->addParamButton,&QPushButton::clicked,this,[this]{addRow(ui_->paramTable,{"MPC_XY_P","0.95"});});
     connect(ui_->removeParamButton,&QPushButton::clicked,this,[this]{ui_->paramTable->removeRow(ui_->paramTable->currentRow());});
     connect(ui_->runButton,&QPushButton::clicked,this,[this]{start(false);});connect(ui_->batchButton,&QPushButton::clicked,this,[this]{start(true);});
-    connect(ui_->abortButton,&QPushButton::clicked,this,[this]{comparisonCancelled_=true;runner_->abort();});
+    connect(ui_->abortButton,&QPushButton::clicked,this,[this]{if(externalMissionBusy&&externalMissionBusy()&&abortExternalMission){abortExternalMission();return;}comparisonCancelled_=true;runner_->abort();});
     connect(runner_,&ExperimentRunner::log,this,&LabPanel::log);connect(runner_,&ExperimentRunner::finished,this,[this](const LabResult&r){result(r);if(comparing_&&r.status=="INCONCLUSIVE")comparisonCancelled_=true;});
     connect(runner_,&ExperimentRunner::batchFinished,this,[this]{if(!comparing_)return;QTimer::singleShot(0,this,[this]{if(comparisonCancelled_){comparing_=false;comparisonQueue_.clear();return;}nextComparison();});});
     auto*replay=new QPushButton("Seçili deney kaydını oynat",this);replay->setObjectName("replayResultButton");ui_->resultsTab->layout()->addWidget(replay);
     connect(replay,&QPushButton::clicked,this,[this]{auto rows=ui_->resultsTable->selectionModel()->selectedRows();if(rows.size()!=1){message("Oynatmak için bir deney seçin.");return;}emit replayResult(results_[rows[0].row()]);});
+    auto *pdfReport=new QPushButton("Deney sonuç PDF'si",this);pdfReport->setObjectName("ihaPdfReportButton");ui_->resultsTab->layout()->addWidget(pdfReport);
+    connect(pdfReport,&QPushButton::clicked,this,&LabPanel::exportResultsPdf);
     connect(ui_->resultsTable,&QTableWidget::itemSelectionChanged,this,&LabPanel::selection);
     connect(ui_->saveButton,&QPushButton::clicked,this,[this]{QString error;auto s=spec(error);if(!error.isEmpty()){message(error);return;}auto path=QFileDialog::getSaveFileName(this,"Senaryoyu kaydet",s.name+".json","Senaryo (*.json)");if(path.isEmpty())return;if(!writeFile(path,QJsonDocument(s.json()).toJson(),error))message(error);});
     connect(ui_->loadButton,&QPushButton::clicked,this,[this]{QString path=QFileDialog::getOpenFileName(this,"Senaryo aç",{},"JSON (*.json)");if(path.isEmpty())return;QString error;auto o=readJson(path,error);if(!o){message(error);return;}auto s=LabSpec::fromJson(*o,error);if(!s){message(error);return;}fill(*s);});
@@ -106,6 +109,8 @@ void LabPanel::start(bool batch){
     publishRoute();runSpec_=s;regressionLimit_=ui_->regressionSpin->value();if(!runner_->start(queue,error)){message(error);return;}ui_->tabs->setCurrentWidget(ui_->resultsTab);
 }
 void LabPanel::result(LabResult r){
+    const int system=r.metrics.value("systemId").toInt(state_->selected);const auto vehicle=session_->vehicleProfile(system);
+    if(!r.metrics.contains("relayMission")&&!r.metrics.contains("windFormation")&&vehicle.value("sha256").toString()==r.profileHash&&!r.profileHash.isEmpty())attachIhaAnalysis(r,vehicle.value("hardware").toObject());
     if(r.spec.kind=="regression"&&baseline_){if(r.status=="PASS"&&r.metrics.contains("meanErrorM")&&baseline_->metrics.contains("meanErrorM")){double reference=baseline_->metrics["meanErrorM"].toDouble(),current=r.metrics["meanErrorM"].toDouble();if(reference>1e-6){double delta=(current-reference)/reference*100;r.metrics["regressionErrorIncreasePct"]=delta;if(delta>regressionLimit_){r.status="FAIL";r.reason="Ortalama rota hatası referansa göre izin verilen artışı aştı.";}r.metrics["regressionLimitPct"]=regressionLimit_;r.metrics["baselineId"]=baseline_->id;}else{r.status="INCONCLUSIVE";r.reason="Referans ortalama hata sıfıra çok yakın; yüzde karşılaştırması tanımsız.";}}}
     if(comparing_)comparisonIds_.append(r.id);
     if(results_.size()>=200)results_.removeFirst();results_.append(r);QDir d(QStandardPaths::writableLocation(QStandardPaths::AppDataLocation)+"/experiments");if(!d.exists())QDir().mkpath(d.absolutePath());QString error;if(!writeFile(d.filePath(r.id+".json"),QJsonDocument(r.json()).toJson(QJsonDocument::Compact),error))emit log("Sonuç otomatik kaydedilemedi: "+error);QString html="<!doctype html><html lang='tr'><meta charset='utf-8'><title>AeroCore deney raporu</title><style>body{font:15px system-ui;max-width:1050px;margin:32px auto;color:#17365D}pre{white-space:pre-wrap;overflow-wrap:anywhere;background:#F3F6FA;padding:16px}svg{background:#F3F6FA;width:100%}</style><h1>"+r.spec.name.toHtmlEscaped()+"</h1><h2>"+r.status.toHtmlEscaped()+"</h2><p>"+r.reason.toHtmlEscaped()+"</p><p>SYS "+QString::number(r.metrics["systemId"].toInt())+" • "+r.metrics["vehicleName"].toString().toHtmlEscaped()+"<br>"+r.started.toHtmlEscaped()+"<br>PX4 SHA256: "+r.firmware.toHtmlEscaped()+"<br>Fizik profili SHA256: "+r.profileHash.toHtmlEscaped()+"</p>";
@@ -126,8 +131,8 @@ void LabPanel::sessionEnded(){comparisonCancelled_=true;comparing_=false;compari
 void LabPanel::addMapPoint(double lat,double lon){if(busy())return;auto v=state_->vehicles.constFind(state_->selected);if(v==state_->vehicles.cend()||sitl::monoSeconds()-v->posAt>=1){emit log("Rota eklemek için taze konum gerekli.");return;}auto q=aero::local(lat,lon,v->lat,v->lon);if(std::abs(q.east)>500||std::abs(q.north)>500){emit log("Rota noktası ±500 m sınırı dışında.");return;}addRow(ui_->routeTable,{QString::number(q.east,'f',2),QString::number(q.north,'f',2)});publishRoute();ui_->tabs->setCurrentWidget(ui_->routeTab);}
 void LabPanel::publishRoute(){QString error;auto s=spec(error);if(!error.isEmpty())return;auto v=state_->vehicles.constFind(state_->selected);if(v==state_->vehicles.cend()||v->posAt==0)return;QVector<QPointF> route;route.append({v->lon,v->lat});for(auto p:s.route){auto g=aero::geographic(p,v->lat,v->lon);route.append({g.east,g.north});}emit routeChanged(route);}
 
-void LabPanel::applyVehicle(LabSpec&s)const{QString error;auto o=session_->vehicleProfile(state_->selected);if(auto v=VehicleProfile::fromJson(o,error))v->apply(s);}
-void LabPanel::selectedVehicleChanged(){if(runner_->busy())return;session_->setActiveSystem(state_->selected);QString error;auto s=spec(error);if(error.isEmpty()){applyVehicle(s);ui_->payloadSpin->setValue(s.payload);ui_->cgXSpin->setValue(s.cgX);ui_->cgYSpin->setValue(s.cgY);ui_->cgZSpin->setValue(s.cgZ);ui_->gpsNoiseSpin->setValue(s.gpsNoise);ui_->drainSpin->setValue(s.batteryDrain);ui_->batteryMinSpin->setValue(s.batteryMin);ui_->batteryModelEdit->setText(s.batteryModel);ui_->vehicleLabel->setText(QString("SYS %1 / %2 / Gazebo x500").arg(state_->selected).arg(session_->vehicleProfile(state_->selected)["name"].toString()));}}
+void LabPanel::applyVehicle(LabSpec&s)const{QString error;auto o=session_->vehicleProfile(state_->selected);s.vehicle=o.contains("hardware")?QString("iha_maker_%1").arg(state_->selected):"x500";if(auto v=VehicleProfile::fromJson(o,error))v->apply(s);}
+void LabPanel::selectedVehicleChanged(){if(runner_->busy())return;session_->setActiveSystem(state_->selected);QString error;auto s=spec(error);if(error.isEmpty()){applyVehicle(s);ui_->payloadSpin->setValue(s.payload);ui_->cgXSpin->setValue(s.cgX);ui_->cgYSpin->setValue(s.cgY);ui_->cgZSpin->setValue(s.cgZ);ui_->gpsNoiseSpin->setValue(s.gpsNoise);ui_->drainSpin->setValue(s.batteryDrain);ui_->batteryMinSpin->setValue(s.batteryMin);ui_->batteryModelEdit->setText(s.batteryModel);ui_->vehicleLabel->setText(QString("SYS %1 / %2 / %3").arg(state_->selected).arg(session_->vehicleProfile(state_->selected)["name"].toString()).arg(session_->vehicleProfile(state_->selected).contains("hardware")?"Gazebo IHA Maker (yaklaşık model)":"Gazebo x500"));}}
 void LabPanel::compareFleet(){
     if(busy()||(externalCommandPending&&externalCommandPending())){message("Çalışan deney / komutun bitmesini bekleyin.");return;}
     QString error;auto s=spec(error);if(!error.isEmpty()){message(error);return;}
@@ -145,4 +150,13 @@ void LabPanel::nextComparison(){
     state_->selected=comparisonQueue_.takeFirst();comparisonSystem_=state_->selected;session_->setActiveSystem(state_->selected);
     auto s=comparisonSpec_;applyVehicle(s);s.name+=QString(" / SYS %1 — %2").arg(state_->selected).arg(session_->vehicleProfile(state_->selected)["name"].toString());selectedVehicleChanged();publishRoute();QString error;
     if(!runner_->start({s},error)){comparing_=false;comparisonQueue_.clear();message(error);return;}ui_->tabs->setCurrentWidget(ui_->resultsTab);
+}
+
+void LabPanel::exportResultsPdf(){
+    if(results_.isEmpty()){message("Henüz tamamlanmış deney sonucu yok. Görev bitince veya iptal/iniş sonucu oluşunca PDF alabilirsiniz.");return;}
+    const auto rows=ui_->resultsTable->selectionModel()->selectedRows();QVector<LabResult> selected;
+    if(rows.isEmpty()){for(int n=std::max(0,int(results_.size())-3);n<results_.size();++n)selected.append(results_[n]);}
+    else for(const auto &row:rows)selected.append(results_[row.row()]);
+    auto path=QFileDialog::getSaveFileName(this,"Deney analiz sonuçları","AeroCore_Deney_Sonuclari.pdf","PDF (*.pdf)");if(path.isEmpty())return;if(!path.endsWith(".pdf",Qt::CaseInsensitive))path+=".pdf";
+    QString error;if(!saveFlightReportPdf(path,selected,error))message(error);else emit log("Deney analiz PDF'si kaydedildi: "+path);
 }
